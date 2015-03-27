@@ -3,26 +3,31 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Add Point</title>
         <link href="/resources/css/main.css" rel="stylesheet" type="text/css">
-	<script language="javascript" type="text/javascript" src="http://www.flotcharts.org/flot/jquery.js"></script>
-	<script language="javascript" type="text/javascript" src="http://www.flotcharts.org/flot/jquery.flot.js"></script>
+	
+	<script src="/resources/js/Chart.js"></script>
 	<script type="text/javascript">
 
-	$(function() {
-	        var view = %%point.data_view%%
-		$.plot("#placeholder", [view]);
-	});
+	var randomScalingFactor = function(){ return Math.round(Math.random()*100)};
+	var lineChartData = %%point.data_view%%
+
+	window.onload = function(){
+		var ctx = document.getElementById("canvas").getContext("2d");
+		window.myLine = new Chart(ctx).Line(lineChartData, {
+			responsive: true
+		});
+	}
 
 	</script>
 </head>
 <body>
 <div id="nav_status">OI</div>
+
 <div id="content">
-
-			<div id="placeholder" class="demo-placeholder"></div>
-
-
-
+			<div>
+				<canvas id="canvas" height="50px" width="100%"></canvas>
+			</div>
 </div>
+
 <div id="editor_container">
   <center>
     <div id="editor">

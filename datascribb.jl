@@ -97,6 +97,10 @@ function toJSON(point::DataPoint)
     string("[", point.timestamp, ",", point.value, "]")
 end
 
+function toPair(point::DataPoint)
+   (string(point.timestamp), string(point.value))
+end
+
 function SQLQueryFilter(query::SQLQuery, where::String)
     SQLQuery(query.body, string(query.where, if length(query.where) != 0 "AND" else "" end, where))
 end
@@ -125,10 +129,25 @@ type DataSetView
     points:: Vector{DataPoint}
 end
 
+
 function toJSON(view :: DataSetView)
-    points = string ("[", join(map(toJSON, view.points),","), "]")
+#    points = string ("[", join(map(toJSON, view.points),","), "]")
+    points = foldl((x,y)-> (push!(x[1],y[1]),push!(x[2],y[2])), (String[],String[]), map(toPair, view.points))
     println(points)
-    string("{ \"label\" : ", toJSON(view.dataSet), ", \"data\" : ", points, "}")
+    #string("{ \"label\" : ", toJSON(view.dataSet), ", \"data\" : ", points, "}")
+   @sprintf("{ 
+         labels: %s, 
+         datasets: [
+         { label: %s,
+           fillColor: \"rgba(120,220,120,0.2)\",
+           strokeColor: \"rgba(200,220,200,1)\",
+           pointColor: \"rgba(120,220,120,1)\",
+           pointStrokeColor: \"#fff\",
+           pointHighlightFill: \"#fff\",
+           pointHighlightStroke: \"rgba(120,220,120,1)\",
+           data: %s
+        }]}", string("[", join(points[1], ","), "]"), toJSON(view.dataSet), string("[", join(points[2], ","), "]"));
+#    string("{ \"label\" : ", , ", \"data\" : ", points, "}")
 end
 
 type DataPointRequest
