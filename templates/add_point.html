@@ -31,13 +31,18 @@
 <div id="editor_container">
   <center>
     <div id="editor">
-      <form>
+      <form method="post">
 	<input type="hidden" name="point.id" value="%%point.id%%">
 	<table class="editor">
           <tr><td class="editor_label">Tag:</td><td><input type="text" name="point.tag" value="%%point.tag%%"></td></tr>
           <tr><td class="editor_label">Value: </td><td><input type="text" name="point.value" value="%%point.value%%"></td></tr>
 	  <tr><td class="editor_label">Time:</td><td><input type="datetime-local" name="point.timestamp" value="%%point.timestamp%%"></td></tr>
-          <tr><td colspan="2" align="right"><input type="submit" name="action" value="OK" class="editor"></td></tr>
+          <tr><td colspan="2" align="right"><input type="submit" name="create" value="OK" class="editor"></td></tr>
+        </table>
+      </form>
+      <form method="post">
+	<table class="editor">
+        <tr><td colspan="2" align="right"><input type="submit" name="new" value="NEW" class="editor"></td></tr>
         </table>
       </form>
     </div>

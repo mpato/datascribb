@@ -1,3 +1,4 @@
+using Dates
 using HttpServer
 using SQLite
 
@@ -98,7 +99,7 @@ function toJSON(point::DataPoint)
 end
 
 function toPair(point::DataPoint)
-   (string(point.timestamp), string(point.value))
+   (string("\"", unix2datetime(point.timestamp),"\""), string(point.value))
 end
 
 function SQLQueryFilter(query::SQLQuery, where::String)
@@ -164,10 +165,11 @@ function getSafe(dict, key, def)
 end
 
 function fromDictionary(point::DataPointRequest, dict::Dict{String,String})
+    timestamp = convert(Int64, round(datetime2unix(DateTime(replace(getSafe(dict, "timestamp", "2000-01-01"), " ", "T")))))
     point.point = DataPoint(uint64(getSafe(dict, "id", "0")),
                             uint64(getSafe(dict, "dataset", "0")),
                             getSafe(dict, "tag", ""),
-                            int64(getSafe(dict, "timestamp", "0")),
+                            timestamp,
                             float64(getSafe(dict, "value", "0")));
 end
 
@@ -176,7 +178,7 @@ function toDictionary(point::DataPointRequest)
     ret["id"] = string(point.point.id);
     ret["dataset"] = string(point.point.dataset);
     ret["tag"] = point.point.tag;
-    ret["timestamp"] = string(point.point.timestamp);
+    ret["timestamp"] = string(unix2datetime(point.point.timestamp));
     ret["value"] = string(point.point.value);
     ret["data_view"] = toJSON(point.view)
     return ret;
@@ -291,7 +293,7 @@ function AppPointPage(model::Model)
     point = model["point"].value.point;
     points = SQLRetrieveQuerySet(db, DataPoint, SQLGetRecord(point));
     println(points)
-    if !haskey(model, "action")
+    if !haskey(model, "create")
         if length(points) != 0
             point = points[1]
         end
@@ -330,7 +332,14 @@ http = HttpHandler() do req::Request, res::Response
         return Response(404)
     end
 
-    model = queryToModel(page, parseQuery(req.resource));
+    println(req.data);
+    println(req.resource);
+    if length(req.data) > 0
+        query = parsequerystring(decodeURI(req.data))
+    else
+        query = HTTPQuery()
+    end
+    model = queryToModel(page, query);
     pageName = page.action(model);
     
     Response(modelToHTMLPage(pageName, model))
